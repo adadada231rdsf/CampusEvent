@@ -62,7 +62,7 @@ def ensure_repo():
     print(f"creating repo {OWNER}/{REPO} ...")
     res = gh_api("/user/repos", "POST", {
         "name": REPO,
-        "private": True,
+        "private": False,
         "auto_init": True,
         "description": "CampusEvent 校园活动报名系统 —— 软件工程实验二（策略模式 + 观察者模式）",
     }, absolute=True)
@@ -77,9 +77,15 @@ def main():
     message = git("log", "-1", "--pretty=%B")
 
     tree_map, blobs = {}, {}
-    for line in git("ls-tree", "-r", "HEAD").splitlines():
-        meta, path = line.split("\t", 1)
-        mode, kind, sha = meta.split()
+    # 必须用 -z + quotepath=false：否则中文文件名会被 git 输出成 "\344\275\240..." 这类转义串，
+    # 传到 GitHub 上就成了带引号和反斜杠的怪文件名。
+    raw = git("-c", "core.quotepath=false", "ls-tree", "-r", "-z", "HEAD", binary=True)
+    for entry in raw.split(b"\x00"):
+        if not entry:
+            continue
+        meta, path_bytes = entry.split(b"\t", 1)
+        path = path_bytes.decode("utf-8")
+        mode, kind, sha = meta.decode("ascii").split()
         if kind != "blob" or mode == "120000":
             continue
         tree_map[path] = {

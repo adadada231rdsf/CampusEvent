@@ -45,29 +45,39 @@ python -m pytest -q
 这一步是指导书 3.4-D 的硬性要求（AI 生成代码前必须有人评审签名），不能自己签。
 如果同学提了意见，告诉我，我按意见改设计文档并补一份「修改说明」。
 
-## 四、云端部署（需你做：只差 SSH 密码）
+## 四、云端部署（需你做一步：给服务器加一把公钥）
 
 端口已定：**8080**，与实验一的 StudyTask（80 端口）共存，互不影响。
-服务器沿用实验一的 `47.106.192.221`。
-**你需要把 SSH 密码发我**（或者你自己在服务器上执行下面几步）：
+服务器沿用实验一的 `47.106.192.221`。**它现在只允许公钥登录，密码登录是关的**，所以你有两个选择：
+
+### 方案 A（推荐，30 秒）：把我生成的公钥加到服务器，剩下我全自动
+
+1. 打开腾讯云控制台的「OrcaTerm / VNC 登录」，以 `root` 登进服务器；
+2. 粘贴执行这一行（公钥已带注释，整行不能断）：
 
 ```bash
-# 1) 把代码传上去（本地执行；也可在服务器上 git clone 公开仓库）
-scp -r C:\Users\alice\Desktop\web实验\CampusEvent root@47.106.192.221:/root/
-
-# 2) 服务器上（Ubuntu 24.04）
-cd /root/CampusEvent
-apt install -y python3 python3-venv python3-pip
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt gunicorn
-.venv/bin/python seed_demo.py --reset
-CAMPUSEVENT_SECRET='换成随机串' .venv/bin/gunicorn -w 2 -b 0.0.0.0:8080 "app:create_app()"
+mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL9WRJp8l5L5wktMBVfYzQ4xehR9yLJdQJ9yh62Q9sCp campusevent-deploy' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && echo ADDED
 ```
 
-安全组需放行 8080（80 实验一已放行，8080 是新端口，要在腾讯云控制台加一条规则）。
-部署成功后访问 <http://47.106.192.221:8080/login>，把首页截图发我，我填进报告附录。
+3. 看到 `ADDED` 就回我一句"加好了"，我立刻 scp + 建 venv + systemd 常驻 8080 + 验证外网。
 
-> 注意：8080 若被占用（`Address already in use`）告诉我，我换 8081 并同步改 README 与报告。
+### 方案 B：你自己在服务器上跑（我把脚本写好了）
+
+```bash
+# 本地
+scp -r C:\Users\alice\Desktop\web实验\CampusEvent root@47.106.192.221:/root/
+# 服务器上
+bash /root/CampusEvent/tools/deploy.sh 8080
+```
+
+脚本会：装 python3-venv/pip → 建 venv → 装 Flask+gunicorn → 首次自动 seed 演示数据 →
+写 `/etc/systemd/system/campusevent.service`（`gunicorn -w 2 -b 0.0.0.0:8080`，自动重启）→ 本机 curl 自检。
+
+**不管哪个方案，都要在腾讯云安全组放行 8080**（80 是实验一已放行的，8080 需要新加一条：
+入站规则，TCP，端口 8080，来源 0.0.0.0/0）。
+部署成功后访问 <http://47.106.192.221:8080/login>，把首页截图发我，我填进报告附录并重新推送。
+
+> 8080 若被占用（`Address already in use`）告诉我，我换 8081 并同步改 README 与报告。
 
 ## 五、GitHub 仓库（已完成）
 
@@ -103,10 +113,10 @@ CAMPUSEVENT_SECRET='换成随机串' .venv/bin/gunicorn -w 2 -b 0.0.0.0:8080 "ap
 | 初版代码（P2-F01~F08） | 已完成 |
 | 自动化测试 65 条 | 全绿（退出码 0） |
 | 19 张验收截图 | 已完成，无工具浮层 |
-| 4 张 UML 图 | 生成中/已完成（见 `docs\diagrams\`） |
+| 4 张 UML 图 | 已完成（见 `docs\diagrams\`） |
 | 设计文档 8 份 | 已完成 |
-| 实验报告 docx | 已完成，待你校对 |
-| GitHub 推送 + 标签 | 待你确认仓库名 |
-| 云服务器部署 | **等你给 SSH 密码** |
+| 实验报告 docx | 已完成，待你校对班级与提交日期 |
+| GitHub 推送 + 标签 | 已完成（公开仓库，main + baseline-v1） |
+| 云服务器部署 | **等你给 SSH 密码**（已定 8080 端口） |
 | 设计评审签名 | **等你找同学** |
 | 变更版 change-v2 | 等老师发 CR |

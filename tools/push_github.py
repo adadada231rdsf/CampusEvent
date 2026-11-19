@@ -119,11 +119,13 @@ def main():
 
     if "--tag" in sys.argv:
         tag = sys.argv[sys.argv.index("--tag") + 1]
+        # 新建 ref 的接口是 POST /git/refs，ref 名放在 body 里；
+        # 已有同名 tag 时该接口返回 422，改用 PATCH /git/refs/tags/{tag} 强移。
         try:
-            gh_api(f"git/refs/tags/{tag}", "POST", {"ref": f"refs/tags/{tag}", "sha": commit["sha"]})
+            gh_api("git/refs", "POST", {"ref": f"refs/tags/{tag}", "sha": commit["sha"]})
             print("tag created:", tag, "->", commit["sha"])
         except SystemExit as exc:
-            if "Reference already exists" in str(exc) or "422" in str(exc):
+            if "422" in str(exc) or "already exists" in str(exc):
                 gh_api(f"git/refs/tags/{tag}", "PATCH", {"sha": commit["sha"], "force": True})
                 print("tag moved:", tag, "->", commit["sha"])
             else:

@@ -550,6 +550,7 @@ def section_appendix(doc):
         ["项目总结", "docs/07_项目总结.md"],
         ["手工验收记录", "docs/08_验收记录.md"],
         ["UML 图（用例/类/两张时序）", "docs/diagrams/*.png"],
+        ["演示文稿（15 页）", "docs/实验二_演示_宋逸轩.pptx"],
         ["验收截图（20 张）", "docs/screenshots/*.png"],
         ["测试原始报告", "docs/test-report.xml、docs/test-summary.json"],
         ["AI 协作记录", "AI_DEV_LOG.md"],

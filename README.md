@@ -137,9 +137,10 @@ PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple bash tools/deploy.sh 8080
 | `docs/07_项目总结.md` | 项目总结（含 4 个真实问题） |
 | `docs/08_验收记录.md` | C1–C10 操作步骤与截图编号 |
 | `docs/diagrams/` | 用例图、类图、报名/审批时序图 |
-| `docs/screenshots/` | 19 张真实浏览器验收截图 |
+| `docs/screenshots/` | 20 张真实浏览器验收截图（含云端实例） |
 | `docs/实验二_实验报告_宋逸轩.docx` | 实验报告（按附录 D.1 结构） |
-| `AI_DEV_LOG.md` | 10 轮 AI 协作记录 |
+| `docs/实验二_演示_宋逸轩.pptx` | 演示文稿（15 页，策略/观察者/时序/测试/部署） |
+| `AI_DEV_LOG.md` | 11 轮 AI 协作记录 |
 | `你要做的步骤.md` | 需要学生本人完成的步骤清单 |
 
 ## 8. 目录结构

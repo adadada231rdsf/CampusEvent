@@ -515,10 +515,10 @@ def section_appendix(doc):
     h(doc, "A. 源码与访问地址", 2)
     table(doc, ["项目", "地址 / 说明"], [
         ["源码仓库", "https://github.com/adadada231rdsf/CampusEvent（分支 main，标签 baseline-v1）"],
-        ["云端访问", "http://47.106.192.221（Ubuntu 24.04 + gunicorn，80 端口）"],
+        ["云端访问", "http://47.106.192.221:8080（Ubuntu 24.04 + gunicorn，8080 端口；80 端口为实验一 StudyTask）"],
         ["本地运行", "python seed_demo.py --reset && python run.py → http://127.0.0.1:5000"],
         ["测试命令", "python -m pytest -q （65 条，约 2.7 秒）"],
-        ["服务器部署", "scp -r CampusEvent root@47.106.192.221:/root/ → venv → pip install -r requirements.txt gunicorn → gunicorn -b 0.0.0.0:80 \"app:create_app()\""],
+        ["服务器部署", "scp -r CampusEvent root@47.106.192.221:/root/ → venv → pip install -r requirements.txt gunicorn → gunicorn -b 0.0.0.0:8080 \"app:create_app()\""],
     ], widths=[3.5, 12.0])
 
     h(doc, "B. 交付物清单", 2)

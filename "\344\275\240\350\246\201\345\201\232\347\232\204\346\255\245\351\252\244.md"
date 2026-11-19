@@ -47,11 +47,12 @@ python -m pytest -q
 
 ## 四、云端部署（需你做：只差 SSH 密码）
 
-我已经准备好部署命令与 README 第 6 节，服务器沿用实验一的 `47.106.192.221`。
+端口已定：**8080**，与实验一的 StudyTask（80 端口）共存，互不影响。
+服务器沿用实验一的 `47.106.192.221`。
 **你需要把 SSH 密码发我**（或者你自己在服务器上执行下面几步）：
 
 ```bash
-# 1) 把代码传上去（本地执行；也可用 git clone + API 推送后的仓库）
+# 1) 把代码传上去（本地执行；也可在服务器上 git clone 公开仓库）
 scp -r C:\Users\alice\Desktop\web实验\CampusEvent root@47.106.192.221:/root/
 
 # 2) 服务器上（Ubuntu 24.04）
@@ -60,21 +61,19 @@ apt install -y python3 python3-venv python3-pip
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt gunicorn
 .venv/bin/python seed_demo.py --reset
-CAMPUSEVENT_SECRET='换成随机串' .venv/bin/gunicorn -w 2 -b 0.0.0.0:80 "app:create_app()"
+CAMPUSEVENT_SECRET='换成随机串' .venv/bin/gunicorn -w 2 -b 0.0.0.0:8080 "app:create_app()"
 ```
 
-安全组需放行 80（实验一已经放行过，可直接复用）。
-部署成功后访问 <http://47.106.192.221>，把首页截图发我，我填进报告附录。
+安全组需放行 8080（80 实验一已放行，8080 是新端口，要在腾讯云控制台加一条规则）。
+部署成功后访问 <http://47.106.192.221:8080/login>，把首页截图发我，我填进报告附录。
 
-> 注意：服务器上 80 端口如果还被实验一的 StudyTask 占用，需要先 `systemctl stop` 或 kill 掉旧 gunicorn，
-> 否则会启动失败（`Address already in use`）。这一步我会在部署时处理，你只要给密码。
+> 注意：8080 若被占用（`Address already in use`）告诉我，我换 8081 并同步改 README 与报告。
 
-## 五、GitHub 仓库（我可以代做，需你确认仓库名）
+## 五、GitHub 仓库（已完成）
 
-- 计划仓库：`https://github.com/adadada231rdsf/CampusEvent`（私有或公开都行）
-- 由于本机 `git push` 走 github.com:443 被网络阻断，我会用实验一那套 GitHub API（Trees/Commits）推送，
-  并打标签 `baseline-v1`。
-- 需要你确认：仓库名用 `CampusEvent` 可以吗？要私有还是公开？
+- 仓库：<https://github.com/adadada231rdsf/CampusEvent>（**已设为公开**，老师可直接打开）
+- 已推送 `main` 与标签 `baseline-v1`。本机 `git push`（github.com:443）被网络阻断，改用 GitHub API（Trees/Commits）推送，
+  脚本在 `tools/push_github.py`，改完代码重跑 `python tools/push_github.py --tag baseline-v1` 即可。
 
 ## 六、报告与材料（我已做，需你校对个人信息）
 

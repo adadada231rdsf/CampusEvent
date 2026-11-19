@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}站内通知 · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>站内通知</h2>
+  <p class="hint">报名结果与审核结果由通知通道自动写入。打开本页后全部标记为已读。</p>
+  {% if not rows %}
+    <p class="empty">暂无消息</p>
+  {% else %}
+  <ul class="messages">
+    {% for m in rows %}
+    <li class="msg">
+      <div class="msg-head">
+        <span class="badge badge-kind">{{ m.kind }}</span>
+        <span class="mono">{{ m.created_at }}</span>
+        {% if not m.is_read %}<span class="badge badge-new">本次新读</span>{% endif %}
+      </div>
+      <p class="msg-body">{{ m.content }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endblock %}

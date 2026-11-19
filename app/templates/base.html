@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('activity_list') }}">{{ APP_NAME }}</a>
+    <nav>
+      {% if CURRENT %}
+        <span class="who">{{ CURRENT.student_id }} {{ CURRENT.name }}</span>
+        <a href="{{ url_for('activity_list') }}">活动列表</a>
+        <a href="{{ url_for('my_registrations') }}">我的报名</a>
+        <a href="{{ url_for('messages') }}">站内通知</a>
+      {% endif %}
+      {% if IS_ADMIN %}
+        <span class="who">管理员</span>
+        <a href="{{ url_for('admin_activities') }}">活动管理</a>
+        <a href="{{ url_for('admin_approvals') }}">待审核</a>
+      {% endif %}
+      <a href="{{ url_for('logout') }}">退出</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, msg in messages %}
+            <div class="flash flash-{{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">CampusEvent · 软件工程实验二 · 策略模式 + 观察者模式 · SQLite 持久化</footer>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "total": 65,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "time_seconds": 2.694,
+  "by_file": {
+    "test_activity": {
+      "total": 16,
+      "failures": 0
+    },
+    "test_persistence": {
+      "total": 2,
+      "failures": 0
+    },
+    "test_policy": {
+      "total": 10,
+      "failures": 0
+    },
+    "test_registration": {
+      "total": 22,
+      "failures": 0
+    },
+    "test_web": {
+      "total": 15,
+      "failures": 0
+    }
+  }
+}

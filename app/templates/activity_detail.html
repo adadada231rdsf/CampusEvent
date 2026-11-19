@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ a.title }} · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="act-head">
+    <h2>{{ a.title }}</h2>
+    <span class="badge badge-policy">{{ a.policy_type == 'DIRECT' and '直接报名' or '需审核' }}</span>
+  </div>
+  <dl class="detail">
+    <dt>类别</dt><dd>{{ a.category }}</dd>
+    <dt>时间</dt><dd>{{ a.start_at }}</dd>
+    <dt>地点</dt><dd>{{ a.location }}</dd>
+    <dt>报名方式</dt><dd>{{ a.policy_type == 'DIRECT' and '直接报名（提交即通过）' or '需管理员审核（提交后为待审核）' }}</dd>
+  </dl>
+
+  <div class="stats">
+    <div class="stat"><span class="num">{{ a.capacity }}</span><span class="label">名额上限</span></div>
+    <div class="stat"><span class="num">{{ a.approved }}</span><span class="label">已通过</span></div>
+    <div class="stat"><span class="num">{{ a.pending }}</span><span class="label">待审核（不占名额）</span></div>
+    <div class="stat"><span class="num {{ 'warn' if a.seats_left == 0 }}">{{ a.seats_left }}</span><span class="label">剩余名额</span></div>
+  </div>
+
+  <div class="act-actions">
+    {% if CURRENT %}
+      {% if a.my_reg %}
+        <span class="state state-{{ a.my_reg.status }}">我的报名：{{ a.my_reg.status }}</span>
+        {% if a.my_reg.status in ('待审核', '已通过') %}
+          <form method="post" action="{{ url_for('cancel', registration_id=a.my_reg.registration_id) }}" class="inline">
+            <input type="hidden" name="back" value="{{ url_for('activity_detail', activity_id=a.activity_id) }}">
+            <button class="btn btn-danger btn-small" type="submit">取消报名</button>
+          </form>
+        {% endif %}
+      {% elif a.seats_left > 0 %}
+        <form method="post" action="{{ url_for('register', activity_id=a.activity_id) }}" class="inline">
+          <button class="btn btn-primary" type="submit">
+            {{ a.policy_type == 'DIRECT' and '立即报名' or '提交报名申请' }}
+          </button>
+        </form>
+      {% else %}
+        <span class="state state-已拒绝">名额已满</span>
+      {% endif %}
+    {% else %}
+      <p class="hint">请先用学生账号登录后再报名。</p>
+    {% endif %}
+    <a class="btn btn-small" href="{{ url_for('activity_list') }}">返回列表</a>
+  </div>
+</div>
+
+<div class="card">
+  <h3>报名记录（共 {{ a.registrations|length }} 条）</h3>
+  {% if not a.registrations %}
+    <p class="empty">还没有人报名</p>
+  {% else %}
+  <table class="grid">
+    <thead>
+      <tr><th>#</th><th>学生</th><th>学号</th><th>状态</th><th>提交时间</th><th>更新时间</th><th>备注</th></tr>
+    </thead>
+    <tbody>
+      {% for r in a.registrations %}
+      <tr>
+        <td>{{ r.registration_id }}</td>
+        <td>{{ r.student_name }}</td>
+        <td>{{ r.student_id }}</td>
+        <td><span class="state state-{{ r.status }}">{{ r.status }}</span></td>
+        <td class="mono">{{ r.created_at }}</td>
+        <td class="mono">{{ r.updated_at }}</td>
+        <td>{{ r.note }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

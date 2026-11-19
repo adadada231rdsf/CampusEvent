@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}我的报名 · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>我的报名</h2>
+  <p class="hint">已取消 / 已拒绝的记录会保留在列表里作为历史，可以重新申请同一活动。</p>
+  {% if not rows %}
+    <p class="empty">你还没有报过任何活动</p>
+  {% else %}
+  <table class="grid">
+    <thead>
+      <tr><th>#</th><th>活动</th><th>活动时间</th><th>状态</th><th>提交时间</th><th>备注</th><th>操作</th></tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.registration_id }}</td>
+        <td>{{ r.activity_title }}</td>
+        <td class="mono">{{ r.activity_start_at }}</td>
+        <td><span class="state state-{{ r.status }}">{{ r.status }}</span></td>
+        <td class="mono">{{ r.created_at }}</td>
+        <td>{{ r.note }}</td>
+        <td>
+          {% if r.status in ('待审核', '已通过') %}
+          <form method="post" action="{{ url_for('cancel', registration_id=r.registration_id) }}" class="inline">
+            <input type="hidden" name="back" value="{{ url_for('my_registrations') }}">
+            <button class="btn btn-danger btn-small" type="submit">取消报名</button>
+          </form>
+          {% else %}
+          <a class="btn btn-small" href="{{ url_for('activity_list') }}">重新申请</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

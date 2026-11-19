@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="card error-card">
+  <div class="error-code">{{ code }}</div>
+  <p class="error-msg">{{ message }}</p>
+  <p class="hint">如果你认为这是误报，请回到活动列表重试，或联系管理员。</p>
+  <a class="btn btn-primary" href="{{ url_for('activity_list') }}">返回活动列表</a>
+</div>
+{% endblock %}

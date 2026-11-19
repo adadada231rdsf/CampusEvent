@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}活动管理 · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="act-head">
+    <h2>活动管理</h2>
+    <a class="btn btn-primary" href="{{ url_for('admin_activity_new') }}">＋ 新建活动</a>
+  </div>
+  <p class="hint">删除采用“软删除”：活动从学生端消失，历史报名记录仍然保留（B.2 第 7 条）。</p>
+  {% if not activities %}
+    <p class="empty">还没有活动，点右上角新建一个</p>
+  {% else %}
+  <table class="grid">
+    <thead>
+      <tr>
+        <th>#</th><th>名称</th><th>类别</th><th>时间</th><th>地点</th>
+        <th>上限</th><th>已通过</th><th>待审核</th><th>剩余</th><th>报名方式</th><th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in activities %}
+      <tr>
+        <td>{{ a.activity_id }}</td>
+        <td><a href="{{ url_for('activity_detail', activity_id=a.activity_id) }}">{{ a.title }}</a></td>
+        <td>{{ a.category }}</td>
+        <td class="mono">{{ a.start_at }}</td>
+        <td>{{ a.location }}</td>
+        <td>{{ a.capacity }}</td>
+        <td>{{ a.approved }}</td>
+        <td>{{ a.pending }}</td>
+        <td class="{{ 'warn' if a.seats_left == 0 }}">{{ a.seats_left }}</td>
+        <td><span class="badge badge-policy">{{ a.policy_type == 'DIRECT' and '直接报名' or '需审核' }}</span></td>
+        <td class="ops">
+          <a class="btn btn-small" href="{{ url_for('admin_activity_edit', activity_id=a.activity_id) }}">编辑</a>
+          <form method="post" action="{{ url_for('admin_activity_delete', activity_id=a.activity_id) }}" class="inline"
+                onsubmit="return confirm('确定删除活动「{{ a.title }}」吗？已通过的报名将自动失效并通知学生。');">
+            <button class="btn btn-danger btn-small" type="submit">删除</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

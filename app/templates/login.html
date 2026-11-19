@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>登录</h2>
+  <p class="hint">演示账号（无需注册）：学生 2024001 张三 / 2024002 李四 / 2024003 王五；管理员账号 admin。</p>
+  <form method="post" class="stack">
+    <div class="field">
+      <label>选择身份</label>
+      <select name="student_id">
+        {% for s in students %}
+          <option value="{{ s.student_id }}">{{ s.student_id }} — {{ s.name }}</option>
+        {% endfor %}
+        <option value="admin">admin — 管理员</option>
+      </select>
+    </div>
+    <div class="field actions"><button class="btn btn-primary" type="submit">进入系统</button></div>
+  </form>
+</div>
+{% endblock %}

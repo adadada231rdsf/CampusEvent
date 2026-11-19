@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>活动列表</h2>
+  <form method="get" class="filters">
+    <div class="field">
+      <label>按名称筛选</label>
+      <input type="text" name="q" value="{{ keyword }}" placeholder="例如：讲座">
+    </div>
+    <div class="field actions">
+      <button class="btn btn-primary" type="submit">筛选</button>
+      <a class="btn" href="{{ url_for('activity_list') }}">重置</a>
+    </div>
+  </form>
+</div>
+
+{% if not activities %}
+  <div class="card"><p class="empty">暂无活动</p></div>
+{% endif %}
+
+{% for a in activities %}
+<div class="card activity">
+  <div class="act-head">
+    <h3><a href="{{ url_for('activity_detail', activity_id=a.activity_id) }}">{{ a.title }}</a></h3>
+    <span class="badge badge-policy">{{ a.policy_type == 'DIRECT' and '直接报名' or '需审核' }}</span>
+  </div>
+  <dl class="detail">
+    <dt>类别</dt><dd>{{ a.category }}</dd>
+    <dt>时间</dt><dd>{{ a.start_at }}</dd>
+    <dt>地点</dt><dd>{{ a.location }}</dd>
+    <dt>名额</dt>
+    <dd>
+      上限 {{ a.capacity }} · 已通过 <b>{{ a.approved }}</b> · 待审核 <b>{{ a.pending }}</b>
+      · 剩余 <b class="{{ 'warn' if a.seats_left == 0 }}">{{ a.seats_left }}</b>
+    </dd>
+  </dl>
+  <div class="act-actions">
+    {% if a.my_reg %}
+      <span class="state state-{{ a.my_reg.status }}">我的报名：{{ a.my_reg.status }}</span>
+      {% if a.my_reg.status in ('待审核', '已通过') %}
+        <form method="post" action="{{ url_for('cancel', registration_id=a.my_reg.registration_id) }}" class="inline">
+          <input type="hidden" name="back" value="{{ url_for('activity_list') }}">
+          <button class="btn btn-danger btn-small" type="submit">取消报名</button>
+        </form>
+      {% endif %}
+    {% elif a.seats_left > 0 %}
+      <form method="post" action="{{ url_for('register', activity_id=a.activity_id) }}" class="inline">
+        <button class="btn btn-primary btn-small" type="submit">
+          {{ a.policy_type == 'DIRECT' and '立即报名' or '提交申请' }}
+        </button>
+      </form>
+    {% else %}
+      <span class="state state-已拒绝">名额已满</span>
+    {% endif %}
+    <a class="btn btn-small" href="{{ url_for('activity_detail', activity_id=a.activity_id) }}">查看详情</a>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

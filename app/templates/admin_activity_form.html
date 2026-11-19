@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ '新建活动' if mode == 'new' else '编辑活动' }} · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>{{ '新建活动' if mode == 'new' else '编辑活动' }}</h2>
+  <form method="post" class="stack">
+    {% if a.get('activity_id') %}<input type="hidden" name="activity_id" value="{{ a.get('activity_id') }}">{% endif %}
+    <div class="field">
+      <label>活动名称 <span class="req">*</span></label>
+      <input type="text" name="title" value="{{ a.get('title', '') }}" maxlength="60" placeholder="例如：人工智能前沿讲座">
+    </div>
+    <div class="field">
+      <label>类别</label>
+      <input type="text" name="category" value="{{ a.get('category', '') }}" maxlength="20" placeholder="讲座 / 比赛 / 志愿 / 社团">
+    </div>
+    <div class="field">
+      <label>活动时间 <span class="req">*</span></label>
+      <input type="datetime-local" name="start_at" value="{{ a.get('start_at', '') }}">
+      <span class="hint">格式 2026-12-01T14:00，报名截止即活动开始时间</span>
+    </div>
+    <div class="field">
+      <label>活动地点 <span class="req">*</span></label>
+      <input type="text" name="location" value="{{ a.get('location', '') }}" maxlength="40" placeholder="例如：图书馆报告厅">
+    </div>
+    <div class="field">
+      <label>人数上限 <span class="req">*</span></label>
+      <input type="number" name="capacity" value="{{ a.get('capacity', '') }}" min="1" step="1" placeholder="正整数">
+    </div>
+    <div class="field">
+      <label>报名方式 <span class="req">*</span></label>
+      <select name="policy_type">
+        {% for code, label in POLICY_OPTIONS.items() %}
+        <option value="{{ code }}" {{ 'selected' if a.get('policy_type') == code else '' }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <span class="hint">直接报名：提交即通过；需审核：提交后进入待审核，管理员批准才占名额。</span>
+    </div>
+    <div class="field actions">
+      <button class="btn btn-primary" type="submit">保存</button>
+      <a class="btn" href="{{ url_for('admin_activities') }}">取消</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

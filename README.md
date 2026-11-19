@@ -6,7 +6,7 @@
 一个用 Flask + SQLite 实现的活动报名系统。核心不是页面，而是把**报名规则**与**通知机制**从业务代码里解耦：
 报名方式用**策略模式**（Strategy），通知用**观察者模式**（Observer），两者都有可替换的实现和对应的单元测试。
 
-- 访问地址：http://47.106.192.221　（云服务器部署，见第 6 节）
+- 访问地址：http://47.106.192.221:8080　（云服务器部署，见第 6 节；80 端口仍为实验一 StudyTask）
 - 源码仓库：https://github.com/adadada231rdsf/CampusEvent
 
 ---
@@ -100,19 +100,42 @@ message(message_id PK, student_id, activity_id, kind, content, created_at, is_re
 
 ## 6. 部署（Ubuntu 24.04）
 
+服务器上 80 端口已被实验一的 StudyTask 占用，CampusEvent 用 **8080** 端口共存：
+
 ```bash
+# 本地：把代码传上去（仓库为私有，scp 比 git clone 省事）
+scp -r CampusEvent root@47.106.192.221:/root/
+
 # 服务器
 apt install -y python3 python3-venv python3-pip
-cd /root && git clone https://github.com/adadada231rdsf/CampusEvent.git
-cd CampusEvent
+cd /root/CampusEvent
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt gunicorn
-.venv/bin/python seed_demo.py
-CAMPUSEVENT_SECRET='change-me' .venv/bin/gunicorn -w 2 -b 0.0.0.0:80 "app:create_app()"
+.venv/bin/python seed_demo.py --reset
+CAMPUSEVENT_SECRET='<随机串>' nohup .venv/bin/gunicorn -w 2 -b 0.0.0.0:8080 "app:create_app()" > /root/campusevent.log 2>&1 &
 ```
 
-安全组放行 22 / 80 端口。持久化文件：`instance/campusevent.sqlite`（重启不丢数据）。
+安全组放行 22 / 80 / 8080。持久化文件：`instance/campusevent.sqlite`（重启不丢数据）。
+验证：`curl -I http://127.0.0.1:8080/login` 返回 200；外网访问 `http://47.106.192.221:8080`。
 
-## 7. 目录结构
+## 7. 文档索引
+
+| 文件 | 内容 |
+| --- | --- |
+| `docs/01_需求分析_SRS.md` | 初始需求分析、B.2 规则到代码/测试的映射 |
+| `docs/02_用例说明.md` | UC-01 ~ UC-08、C1–C10 对照 |
+| `docs/03_设计模式与UML说明.md` | 设计模式决策报告、读图指引 |
+| `docs/04_设计评审表.md` | 送审材料清单与评审签名表 |
+| `docs/05_测试用例与回归表.md` | 65 条用例明细、手工验收表、缺陷记录 |
+| `docs/06_变更影响分析模板.md` | CR 到达后填写的影响分析 |
+| `docs/07_项目总结.md` | 项目总结（含 4 个真实问题） |
+| `docs/08_验收记录.md` | C1–C10 操作步骤与截图编号 |
+| `docs/diagrams/` | 用例图、类图、报名/审批时序图 |
+| `docs/screenshots/` | 19 张真实浏览器验收截图 |
+| `docs/实验二_实验报告_宋逸轩.docx` | 实验报告（按附录 D.1 结构） |
+| `AI_DEV_LOG.md` | 10 轮 AI 协作记录 |
+| `你要做的步骤.md` | 需要学生本人完成的步骤清单 |
+
+## 8. 目录结构
 
 ```
 CampusEvent/
@@ -137,7 +160,7 @@ CampusEvent/
 └── AI_DEV_LOG.md              # 与 AI 的关键协作记录
 ```
 
-## 8. 已知取舍
+## 9. 已知取舍
 
 - 登录是“演示账号下拉选择”，没有密码与注册流程——实验关注报名业务规则，不关注认证。
 - 名额并发用 `BEGIN IMMEDIATE` 串行化写入，单机 SQLite 足够；多实例部署需换成独立数据库。

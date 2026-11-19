@@ -100,21 +100,28 @@ message(message_id PK, student_id, activity_id, kind, content, created_at, is_re
 
 ## 6. 部署（Ubuntu 24.04）
 
-服务器上 80 端口已被实验一的 StudyTask 占用，CampusEvent 用 **8080** 端口共存：
+服务器上 80 端口已被实验一的 StudyTask 占用，CampusEvent 用 **8080** 端口共存。
+已在 `47.106.192.221` 上线：`campusevent.service`（systemd，`Restart=always`）托管 gunicorn，
+防火墙放行 TCP 8080，公网访问 <http://47.106.192.221:8080>。
+
+从零部署的命令（仓库已含 `tools/deploy.sh`，服务器上执行即可）：
 
 ```bash
-# 本地：把代码传上去（仓库为私有，scp 比 git clone 省事）
-scp -r CampusEvent root@47.106.192.221:/root/
+# 本地：导出当前提交并上传（仓库为私有，scp 比 git clone 省事）
+git archive --format=tar HEAD -o _tmp/campusevent.tar
+scp _tmp/campusevent.tar root@47.106.192.221:/root/
+ssh root@47.106.192.221 'mkdir -p /root/CampusEvent && tar -xf /root/campusevent.tar -C /root/CampusEvent'
 
 # 服务器
-apt install -y python3 python3-venv python3-pip
 cd /root/CampusEvent
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt gunicorn
-.venv/bin/python seed_demo.py --reset
-CAMPUSEVENT_SECRET='<随机串>' nohup .venv/bin/gunicorn -w 2 -b 0.0.0.0:8080 "app:create_app()" > /root/campusevent.log 2>&1 &
+PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple bash tools/deploy.sh 8080
 ```
 
-安全组放行 22 / 80 / 8080。持久化文件：`instance/campusevent.sqlite`（重启不丢数据）。
+`tools/deploy.sh` 会建 venv、装依赖、写 `/etc/systemd/system/campusevent.service`
+（含随机 `CAMPUSEVENT_SECRET`、`Restart=always`）、灌演示数据并 `systemctl enable --now`。
+注意脚本必须保持 LF 换行（`.gitattributes` 已强制），否则 bash 报 `set: pipefail: invalid option name`。
+
+持久化文件：`instance/campusevent.sqlite`（重启不丢数据）。
 验证：`curl -I http://127.0.0.1:8080/login` 返回 200；外网访问 `http://47.106.192.221:8080`。
 
 ## 7. 文档索引

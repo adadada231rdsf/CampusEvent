@@ -354,13 +354,31 @@ def section_process(doc):
     para(doc, "源码按功能提交，初版完成后打标签 baseline-v1。由于本机直连 github.com:443 被网络阻断，"
               "仓库通过 GitHub API（Trees / Commits）推送，标签与提交内容与本地一致。")
     table(doc, ["标签 / 提交", "内容"], [
-        ["baseline-v1", "初版：域层 + 装配层 + 9 个模板 + 65 条测试 + 8 份设计文档 + 4 张 UML + 19 张验收截图"],
+        ["baseline-v1", "初版：域层 + 装配层 + 9 个模板 + 65 条测试 + 8 份设计文档 + 4 张 UML + 20 张截图"],
         ["change-v2（待）", "收到 CR 后在 baseline-v1 上开分支实现，并附变更影响分析与回归报告"],
     ], widths=[4.0, 11.5])
     para(doc, "仓库地址与访问地址见附录；README 内含部署命令、演示账号、测试命令与数据库 Schema。")
 
-    h(doc, "3.3 AI 参与及人工把关", 2)
-    para(doc, "十轮有代表性的协作记录在项目根目录 AI_DEV_LOG.md，被否决或返工的 AI 产出共 5 处，"
+    h(doc, "3.3 云服务器部署", 2)
+    para(doc, "与实验一共用一台阿里云轻量应用服务器（Ubuntu 24.04，2 vCPU / 2 GiB，公网 47.106.192.221），"
+              "实验一 StudyTask 占用 80 端口，本项目使用 8080，互不影响。部署不使用开发服务器，"
+              "而是 gunicorn 多进程 + systemd 托管：")
+    for item in [
+        "打包：git archive 导出 HEAD（不含 .git 与 instance/），scp 到 /root/ 后解压；",
+        "依赖：python3 -m venv + 清华镜像安装 requirements.txt 与 gunicorn；",
+        "托管：campusevent.service（Restart=always、Environment=CAMPUSEVENT_SECRET=随机值），"
+        "启动命令 gunicorn -w 2 -b 0.0.0.0:8080 \"app:create_app()\"；",
+        "数据：部署时执行 seed_demo.py 灌入 4 个演示活动，SQLite 文件随实例持久化，重启不丢；",
+        "放行：云控制台防火墙新增 TCP 8080 / 0.0.0.0/0 规则后，公网 http://47.106.192.221:8080 可访问。",
+    ]:
+        bullet(doc, item)
+    para(doc, "部署阶段踩到两个环境问题：一是 shell 脚本在 Windows 下提交成 CRLF，服务器报 "
+              "“set: pipefail: invalid option name”，由 .gitattributes 强制 *.sh 使用 LF 根治；"
+              "二是本机没有 sshpass，用 SSH_ASKPASS 提供一个打印密码的可执行文件来非交互登录，"
+              "且该文件必须放在纯英文路径下（中文路径会导致 CreateProcessW failed）。")
+
+    h(doc, "3.4 AI 参与及人工把关", 2)
+    para(doc, "十一轮有代表性的协作记录在项目根目录 AI_DEV_LOG.md，被否决或返工的 AI 产出共 6 处，"
               "其中 2 处直接对应后来发现的业务缺陷：")
     for item in [
         "名额检查初稿被写进两个策略 → 人工否决并移到基类，后来审批复查得以复用；",
@@ -532,7 +550,7 @@ def section_appendix(doc):
         ["项目总结", "docs/07_项目总结.md"],
         ["手工验收记录", "docs/08_验收记录.md"],
         ["UML 图（用例/类/两张时序）", "docs/diagrams/*.png"],
-        ["验收截图（19 张）", "docs/screenshots/*.png"],
+        ["验收截图（20 张）", "docs/screenshots/*.png"],
         ["测试原始报告", "docs/test-report.xml、docs/test-summary.json"],
         ["AI 协作记录", "AI_DEV_LOG.md"],
     ], widths=[6.5, 9.0])
@@ -542,7 +560,9 @@ def section_appendix(doc):
                "图 C-1　活动管理列表", "图 C-2　活动表单（新建/编辑共用）")
     two_images(doc, SHOTS / "05-my-registrations.png", SHOTS / "07-messages-read.png",
                "图 C-3　我的报名（含历史记录）", "图 C-4　消息已读标记")
-    image(doc, SHOTS / "17-filter-by-name.png", 15.0, "图 C-5　按名称筛选活动")
+    image(doc, SHOTS / "17-filter-by-name.png", 15.0, "图 C-6　按名称筛选活动")
+    image(doc, SHOTS / "20-deployed-cloud.png", 15.0,
+          "图 C-7　云端部署实例：http://47.106.192.221:8080 管理员登录后的活动管理页")
 
 
 def main():

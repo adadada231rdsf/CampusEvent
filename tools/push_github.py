@@ -107,11 +107,12 @@ def main():
 
     remote = gh_api(f"git/ref/heads/{BRANCH}")
     remote_sha = remote["object"]["sha"]
-    base_tree = gh_api(f"git/commits/{remote_sha}")["tree"]["sha"]
-    print("remote head:", remote_sha, "base_tree:", base_tree)
+    print("remote head:", remote_sha)
 
-    tree = gh_api("git/trees", "POST", {"base_tree": base_tree, "tree": list(tree_map.values())})
-    print("tree:", tree["sha"])
+    # 传全量 tree（不传 base_tree）：base_tree 会把远端上一版遗留的条目一起保留下来，
+    # 早期用被转义的中文文件名推过一次，残留会在每次推送后继续存在，所以这里整体替换。
+    tree = gh_api("git/trees", "POST", {"tree": list(tree_map.values())})
+    print("tree:", tree["sha"], "entries:", len(tree_map))
 
     commit = gh_api("git/commits", "POST", {
         "message": message,

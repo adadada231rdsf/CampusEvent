@@ -141,7 +141,7 @@ PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple bash tools/deploy.sh 8080
 | `docs/实验二_实验报告_宋逸轩.docx` | 实验报告（按附录 D.1 结构） |
 | `docs/实验二_演示_宋逸轩.pptx` | 演示文稿（15 页，策略/观察者/时序/测试/部署） |
 | `AI_DEV_LOG.md` | 11 轮 AI 协作记录 |
-| `你要做的步骤.md` | 需要学生本人完成的步骤清单 |
+| `docs/test-summary.json` | 测试统计（65 条 / 0 失败 / 2.694 s） |
 
 ## 8. 目录结构
 
